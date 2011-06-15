@@ -1,16 +1,15 @@
 # AdvanceCOMP
 
-
-
 The [AdvanceCOMP][] recompression utilities is a suit of commands for optimizing the compression ratio for a number of [zlib][] based file formats, such as `.png`, `.mng`, and `.gz`.  
 
 This is a fork of the [AdvanceCOMP][] recompression utilities that has been modified so that the `advpng` recompression tool can recompress Apples iPhone optimized `.png` proprietery format.
+
+The files in the `src/` directory are the unpacked contents of the [`advancecomp-1.15.tar.gz`](http://sourceforge.net/projects/advancemame/files/advancecomp/1.15/advancecomp-1.15.tar.gz) distribution.
 
 **See also:**<br />
 &nbsp;&nbsp;&nbsp;&nbsp;[Xcode Build Setting Reference &ndash; COMPRESS_PNG_FILES (Compress .png files)](http://developer.apple.com/library/prerelease/ios/documentation/DeveloperTools/Reference/XcodeBuildSettingRef/1-Build_Setting_Reference/build_setting_ref.html#//apple_ref/doc/uid/TP40003931-CH3-SW6)<br />
 &nbsp;&nbsp;&nbsp;&nbsp;[Technical Q&A QA1681 &ndash; Viewing iPhone-Optimized PNGs](http://developer.apple.com/library/prerelease/ios/#qa/qa1681/_index.html)<br />
 &nbsp;&nbsp;&nbsp;&nbsp;[CgBI file format](http://iphonedevwiki.net/index.php/CgBI_file_format)
-
 
 ### Background
 
