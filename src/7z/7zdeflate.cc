@@ -57,36 +57,40 @@ bool decompress_deflate_7z(const unsigned char* in_data, unsigned in_size, unsig
 	}
 }
 
-bool compress_rfc1950_7z(const unsigned char* in_data, unsigned in_size, unsigned char* out_data, unsigned& out_size, unsigned num_passes, unsigned num_fast_bytes) throw ()
+bool compress_rfc1950_7z(const unsigned char* in_data, unsigned in_size, unsigned char* out_data, unsigned& out_size, unsigned num_passes, unsigned num_fast_bytes, unsigned zlibHeader) throw ()
 {
 	if (out_size < 6)
 		return false;
 
-	// 8 - deflate
-	// 7 - 32k window
-	// 3 - max compression
-	unsigned header = (8 << 8) | (7 << 12) | (3 << 6);
+	if(zlibHeader) {
+		// 8 - deflate
+		// 7 - 32k window
+		// 3 - max compression
+		unsigned header = (8 << 8) | (7 << 12) | (3 << 6);
 
-	header += 31 - (header % 31);
+		header += 31 - (header % 31);
 
-	out_data[0] = (header >> 8) & 0xFF;
-	out_data[1] = header & 0xFF;
-	out_data += 2;
+		out_data[0] = (header >> 8) & 0xFF;
+		out_data[1] = header & 0xFF;
+		out_data += 2;
+	}
 
-	unsigned size = out_size - 6;
+	unsigned size = out_size - (zlibHeader ? 6 : 0);
 	if (!compress_deflate_7z(in_data, in_size, out_data, size, num_passes, num_fast_bytes)) {
 		return false;
 	}
 	out_data += size;
 
-	unsigned adler = adler32(adler32(0,0,0), in_data, in_size);
+	if(zlibHeader) {
+		unsigned adler = adler32(adler32(0,0,0), in_data, in_size);
 
-	out_data[0] = (adler >> 24) & 0xFF;
-	out_data[1] = (adler >> 16) & 0xFF;
-	out_data[2] = (adler >> 8) & 0xFF;
-	out_data[3] = adler & 0xFF;
+		out_data[0] = (adler >> 24) & 0xFF;
+		out_data[1] = (adler >> 16) & 0xFF;
+		out_data[2] = (adler >> 8) & 0xFF;
+		out_data[3] = adler & 0xFF;
+	}
 
-	out_size = size + 6;
+	out_size = size + (zlibHeader ? 6 : 0);
 
 	return true;
 }

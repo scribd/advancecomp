@@ -51,7 +51,7 @@ enum shrink_t {
 	shrink_extreme
 };
 
-bool compress_zlib(shrink_t level, unsigned char* out_data, unsigned& out_size, const unsigned char* in_data, unsigned in_size);
+bool compress_zlib(shrink_t level, unsigned char* out_data, unsigned& out_size, const unsigned char* in_data, unsigned in_size, unsigned zlibHeader);
 bool compress_deflate(shrink_t level, unsigned char* out_data, unsigned& out_size, const unsigned char* in_data, unsigned in_size);
 
 #endif

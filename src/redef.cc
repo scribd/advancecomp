@@ -326,7 +326,7 @@ void convert_dat(adv_fz* f_in, adv_fz* f_out, unsigned end)
 			unsigned cmp_size = oversize_zlib(res_size);
 			unsigned char* cmp_data = data_alloc(cmp_size);
 
-			if (!compress_zlib(opt_level, cmp_data, cmp_size, res_data, res_size)) {
+			if (!compress_zlib(opt_level, cmp_data, cmp_size, res_data, res_size, 1)) {
 				throw error() << "Error compressing";
 			}
 

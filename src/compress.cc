@@ -200,7 +200,7 @@ bool decompress_bzip2(const unsigned char* in_data, unsigned in_size, unsigned c
 }
 #endif
 
-bool compress_zlib(shrink_t level, unsigned char* out_data, unsigned& out_size, const unsigned char* in_data, unsigned in_size)
+bool compress_zlib(shrink_t level, unsigned char* out_data, unsigned& out_size, const unsigned char* in_data, unsigned in_size, unsigned zlibHeader)
 {
 #if defined(USE_7Z)
 	if (level == shrink_normal || level == shrink_extra || level == shrink_extreme) {
@@ -224,7 +224,7 @@ bool compress_zlib(shrink_t level, unsigned char* out_data, unsigned& out_size, 
 			assert(0);
 		}
 
-		if (!compress_rfc1950_7z(in_data, in_size, out_data, out_size, sz_passes, sz_fastbytes)) {
+		if (!compress_rfc1950_7z(in_data, in_size, out_data, out_size, sz_passes, sz_fastbytes, zlibHeader)) {
 			return false;
 		}
 

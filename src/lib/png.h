@@ -39,6 +39,7 @@ extern "C" {
 #define ADV_PNG_CN_IDAT 0x49444154
 #define ADV_PNG_CN_IEND 0x49454E44
 #define ADV_PNG_CN_tRNS 0x74524e53
+#define ADV_PNG_CN_CgBI 0x43674249
 /*@}*/
 
 adv_error adv_png_read_chunk(adv_fz* f, unsigned char** data, unsigned* size, unsigned* type);

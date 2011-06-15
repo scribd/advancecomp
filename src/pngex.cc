@@ -58,7 +58,7 @@ void png_compress(shrink_t level, data_ptr& out_ptr, unsigned& out_size, const u
 
 	assert(p0 == fil_ptr + fil_size);
 
-	if (!compress_zlib(level, z_ptr, z_size, fil_ptr, fil_size)) {
+	if (!compress_zlib(level, z_ptr, z_size, fil_ptr, fil_size, 1)) {
 		throw error() << "Failed compression";
 	}
 
@@ -97,7 +97,7 @@ void png_compress_delta(shrink_t level, data_ptr& out_ptr, unsigned& out_size, c
 
 	assert(p0 == fil_ptr + fil_size);
 
-	if (!compress_zlib(level, z_ptr, z_size, fil_ptr, fil_size)) {
+	if (!compress_zlib(level, z_ptr, z_size, fil_ptr, fil_size, 1)) {
 		throw error() << "Failed compression";
 	}
 
