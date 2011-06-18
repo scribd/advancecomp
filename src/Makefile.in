@@ -35,7 +35,7 @@ PRE_UNINSTALL = :
 POST_UNINSTALL = :
 build_triplet = @build@
 host_triplet = @host@
-bin_PROGRAMS = advzip$(EXEEXT) advpng$(EXEEXT) adviphone$(EXEEXT) \
+bin_PROGRAMS = advzip$(EXEEXT) advpng$(EXEEXT) advpngidat$(EXEEXT) \
 	advmng$(EXEEXT) advdef$(EXEEXT)
 subdir = .
 DIST_COMMON = README $(am__configure_deps) $(noinst_HEADERS) \
@@ -68,20 +68,6 @@ am_advdef_OBJECTS = redef.$(OBJEXT) file.$(OBJEXT) data.$(OBJEXT) \
 	WindowOut.$(OBJEXT)
 advdef_OBJECTS = $(am_advdef_OBJECTS)
 advdef_LDADD = $(LDADD)
-am_adviphone_OBJECTS = reiphone.$(OBJEXT) pngex.$(OBJEXT) \
-	file.$(OBJEXT) data.$(OBJEXT) siglock.$(OBJEXT) \
-	compress.$(OBJEXT) getopt.$(OBJEXT) snprintf.$(OBJEXT) \
-	fz.$(OBJEXT) png.$(OBJEXT) error.$(OBJEXT) snstring.$(OBJEXT) \
-	7zdeflate.$(OBJEXT) 7zlzma.$(OBJEXT) AriBitCoder.$(OBJEXT) \
-	CRC.$(OBJEXT) DeflateDecoder.$(OBJEXT) \
-	DeflateEncoder.$(OBJEXT) HuffmanEncoder.$(OBJEXT) \
-	IInOutStreams.$(OBJEXT) InByte.$(OBJEXT) LSBFDecoder.$(OBJEXT) \
-	LSBFEncoder.$(OBJEXT) LZMA.$(OBJEXT) LZMADecoder.$(OBJEXT) \
-	LZMAEncoder.$(OBJEXT) LenCoder.$(OBJEXT) \
-	LiteralCoder.$(OBJEXT) OutByte.$(OBJEXT) WindowIn.$(OBJEXT) \
-	WindowOut.$(OBJEXT)
-adviphone_OBJECTS = $(am_adviphone_OBJECTS)
-adviphone_LDADD = $(LDADD)
 am_advmng_OBJECTS = remng.$(OBJEXT) pngex.$(OBJEXT) mngex.$(OBJEXT) \
 	scroll.$(OBJEXT) file.$(OBJEXT) data.$(OBJEXT) \
 	siglock.$(OBJEXT) compress.$(OBJEXT) getopt.$(OBJEXT) \
@@ -109,6 +95,20 @@ am_advpng_OBJECTS = repng.$(OBJEXT) pngex.$(OBJEXT) file.$(OBJEXT) \
 	WindowIn.$(OBJEXT) WindowOut.$(OBJEXT)
 advpng_OBJECTS = $(am_advpng_OBJECTS)
 advpng_LDADD = $(LDADD)
+am_advpngidat_OBJECTS = repngidat.$(OBJEXT) pngex.$(OBJEXT) \
+	file.$(OBJEXT) data.$(OBJEXT) siglock.$(OBJEXT) \
+	compress.$(OBJEXT) getopt.$(OBJEXT) snprintf.$(OBJEXT) \
+	fz.$(OBJEXT) png.$(OBJEXT) error.$(OBJEXT) snstring.$(OBJEXT) \
+	7zdeflate.$(OBJEXT) 7zlzma.$(OBJEXT) AriBitCoder.$(OBJEXT) \
+	CRC.$(OBJEXT) DeflateDecoder.$(OBJEXT) \
+	DeflateEncoder.$(OBJEXT) HuffmanEncoder.$(OBJEXT) \
+	IInOutStreams.$(OBJEXT) InByte.$(OBJEXT) LSBFDecoder.$(OBJEXT) \
+	LSBFEncoder.$(OBJEXT) LZMA.$(OBJEXT) LZMADecoder.$(OBJEXT) \
+	LZMAEncoder.$(OBJEXT) LenCoder.$(OBJEXT) \
+	LiteralCoder.$(OBJEXT) OutByte.$(OBJEXT) WindowIn.$(OBJEXT) \
+	WindowOut.$(OBJEXT)
+advpngidat_OBJECTS = $(am_advpngidat_OBJECTS)
+advpngidat_LDADD = $(LDADD)
 am_advzip_OBJECTS = rezip.$(OBJEXT) zip.$(OBJEXT) file.$(OBJEXT) \
 	data.$(OBJEXT) siglock.$(OBJEXT) compress.$(OBJEXT) \
 	zipsh.$(OBJEXT) getopt.$(OBJEXT) snprintf.$(OBJEXT) \
@@ -134,10 +134,10 @@ CXXCOMPILE = $(CXX) $(DEFS) $(DEFAULT_INCLUDES) $(INCLUDES) \
 CXXLD = $(CXX)
 CXXLINK = $(CXXLD) $(AM_CXXFLAGS) $(CXXFLAGS) $(AM_LDFLAGS) $(LDFLAGS) \
 	-o $@
-SOURCES = $(advdef_SOURCES) $(adviphone_SOURCES) $(advmng_SOURCES) \
-	$(advpng_SOURCES) $(advzip_SOURCES)
-DIST_SOURCES = $(advdef_SOURCES) $(adviphone_SOURCES) \
-	$(advmng_SOURCES) $(advpng_SOURCES) $(advzip_SOURCES)
+SOURCES = $(advdef_SOURCES) $(advmng_SOURCES) $(advpng_SOURCES) \
+	$(advpngidat_SOURCES) $(advzip_SOURCES)
+DIST_SOURCES = $(advdef_SOURCES) $(advmng_SOURCES) $(advpng_SOURCES) \
+	$(advpngidat_SOURCES) $(advzip_SOURCES)
 am__vpath_adj_setup = srcdirstrip=`echo "$(srcdir)" | sed 's|.|.|g'`;
 am__vpath_adj = case $$p in \
     $(srcdir)/*) f=`echo "$$p" | sed "s|^$$srcdirstrip/||"`;; \
@@ -336,8 +336,8 @@ advpng_SOURCES = \
 	7z/WindowIn.cc \
 	7z/WindowOut.cc
 
-adviphone_SOURCES = \
-	reiphone.cc \
+advpngidat_SOURCES = \
+	repngidat.cc \
 	pngex.cc \
 	file.cc \
 	data.cc \
@@ -521,7 +521,7 @@ noinst_HEADERS = \
 man_MANS = doc/advdef.1 doc/advzip.1 doc/advpng.1 doc/advmng.1
 DISTDOS_ROOT = \
 	doc/readme.txt doc/authors.txt doc/history.txt doc/copying.txt \
-	advdef.exe advzip.exe advpng.exe adviphone.exe advmng.exe
+	advdef.exe advzip.exe advpng.exe advpngidat.exe advmng.exe
 
 DISTDOS_DOC = \
 	doc/advdef.txt doc/advzip.txt doc/advpng.txt doc/advmng.txt \
@@ -628,15 +628,15 @@ clean-binPROGRAMS:
 advdef$(EXEEXT): $(advdef_OBJECTS) $(advdef_DEPENDENCIES) 
 	@rm -f advdef$(EXEEXT)
 	$(CXXLINK) $(advdef_OBJECTS) $(advdef_LDADD) $(LIBS)
-adviphone$(EXEEXT): $(adviphone_OBJECTS) $(adviphone_DEPENDENCIES) 
-	@rm -f adviphone$(EXEEXT)
-	$(CXXLINK) $(adviphone_OBJECTS) $(adviphone_LDADD) $(LIBS)
 advmng$(EXEEXT): $(advmng_OBJECTS) $(advmng_DEPENDENCIES) 
 	@rm -f advmng$(EXEEXT)
 	$(CXXLINK) $(advmng_OBJECTS) $(advmng_LDADD) $(LIBS)
 advpng$(EXEEXT): $(advpng_OBJECTS) $(advpng_DEPENDENCIES) 
 	@rm -f advpng$(EXEEXT)
 	$(CXXLINK) $(advpng_OBJECTS) $(advpng_LDADD) $(LIBS)
+advpngidat$(EXEEXT): $(advpngidat_OBJECTS) $(advpngidat_DEPENDENCIES) 
+	@rm -f advpngidat$(EXEEXT)
+	$(CXXLINK) $(advpngidat_OBJECTS) $(advpngidat_LDADD) $(LIBS)
 advzip$(EXEEXT): $(advzip_OBJECTS) $(advzip_DEPENDENCIES) 
 	@rm -f advzip$(EXEEXT)
 	$(CXXLINK) $(advzip_OBJECTS) $(advzip_LDADD) $(LIBS)
@@ -1182,7 +1182,7 @@ uninstall-man: uninstall-man1
 clean-local:
 	rm -f check.lst check.zip mappy.mng mappy.png
 	rm -f basn2c08.png basn3p01.png basn3p02.png basn3p04.png basn3p08.png basn6a08.png basn6a04.png
-	rm -f advdef.exe advzip.exe advpng.exe adviphone.exe advmng.exe
+	rm -f advdef.exe advzip.exe advpng.exe advpngidat.exe advmng.exe
 	rm -f mappy*.png
 
 maintainer-clean-local:
@@ -1268,7 +1268,7 @@ distdos: $(DISTDOS_ROOT) $(DISTDOS_DOC)
 	i586-pc-msdosdjgpp-strip advdef.exe
 	i586-pc-msdosdjgpp-strip advzip.exe
 	i586-pc-msdosdjgpp-strip advpng.exe
-	i586-pc-msdosdjgpp-strip adviphone.exe
+	i586-pc-msdosdjgpp-strip advpngidat.exe
 	i586-pc-msdosdjgpp-strip advmng.exe
 	rm -f $(PACKAGE)-$(VERSION)-dos-pentium.zip
 	mkdir tmp
@@ -1282,7 +1282,7 @@ distwindows: $(DISTDOS_ROOT) $(DISTDOS_DOC)
 	i386-mingw32msvc-strip advdef.exe
 	i386-mingw32msvc-strip advzip.exe
 	i386-mingw32msvc-strip advpng.exe
-	i386-mingw32msvc-strip adviphone.exe
+	i386-mingw32msvc-strip advpngidat.exe
 	i386-mingw32msvc-strip advmng.exe
 	rm -f $(PACKAGE)-$(VERSION)-windows-pentium.zip
 	mkdir tmp

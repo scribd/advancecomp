@@ -342,7 +342,7 @@ void usage()
 {
 	version();
 
-	cout << "Usage: adviphone [options] [FILES...]" << endl;
+	cout << "Usage: advpngidat [options] [FILES...]" << endl;
 	cout << endl;
 	cout << "Modes:" << endl;
 	cout << "  " SWITCH_GETOPT_LONG("-l, --list          ", "-l") "  List the content of the files" << endl;

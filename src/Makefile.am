@@ -1,6 +1,6 @@
 ## Process this file with automake to produce Makefile.in
 
-bin_PROGRAMS = advzip advpng adviphone advmng advdef
+bin_PROGRAMS = advzip advpng advpngidat advmng advdef
 
 advzip_SOURCES = \
 	rezip.cc \
@@ -65,8 +65,8 @@ advpng_SOURCES = \
 	7z/WindowIn.cc \
 	7z/WindowOut.cc
 
-adviphone_SOURCES = \
-	reiphone.cc \
+advpngidat_SOURCES = \
+	repngidat.cc \
 	pngex.cc \
 	file.cc \
 	data.cc \
@@ -252,7 +252,7 @@ man_MANS = doc/advdef.1 doc/advzip.1 doc/advpng.1 doc/advmng.1
 clean-local:
 	rm -f check.lst check.zip mappy.mng mappy.png
 	rm -f basn2c08.png basn3p01.png basn3p02.png basn3p04.png basn3p08.png basn6a08.png basn6a04.png
-	rm -f advdef.exe advzip.exe advpng.exe adviphone.exe advmng.exe
+	rm -f advdef.exe advzip.exe advpng.exe advpngidat.exe advmng.exe
 	rm -f mappy*.png
 
 maintainer-clean-local:
@@ -336,7 +336,7 @@ check-local: advzip test/test.lst
 
 DISTDOS_ROOT = \
 	doc/readme.txt doc/authors.txt doc/history.txt doc/copying.txt \
-	advdef.exe advzip.exe advpng.exe adviphone.exe advmng.exe
+	advdef.exe advzip.exe advpng.exe advpngidat.exe advmng.exe
 
 DISTDOS_DOC = \
 	doc/advdef.txt doc/advzip.txt doc/advpng.txt doc/advmng.txt \
@@ -348,7 +348,7 @@ distdos: $(DISTDOS_ROOT) $(DISTDOS_DOC)
 	i586-pc-msdosdjgpp-strip advdef.exe
 	i586-pc-msdosdjgpp-strip advzip.exe
 	i586-pc-msdosdjgpp-strip advpng.exe
-	i586-pc-msdosdjgpp-strip adviphone.exe
+	i586-pc-msdosdjgpp-strip advpngidat.exe
 	i586-pc-msdosdjgpp-strip advmng.exe
 	rm -f $(PACKAGE)-$(VERSION)-dos-pentium.zip
 	mkdir tmp
@@ -362,7 +362,7 @@ distwindows: $(DISTDOS_ROOT) $(DISTDOS_DOC)
 	i386-mingw32msvc-strip advdef.exe
 	i386-mingw32msvc-strip advzip.exe
 	i386-mingw32msvc-strip advpng.exe
-	i386-mingw32msvc-strip adviphone.exe
+	i386-mingw32msvc-strip advpngidat.exe
 	i386-mingw32msvc-strip advmng.exe
 	rm -f $(PACKAGE)-$(VERSION)-windows-pentium.zip
 	mkdir tmp

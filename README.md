@@ -2,7 +2,7 @@
 
 The [AdvanceCOMP][] recompression utilities is a suit of commands for optimizing the compression ratio for a number of [zlib][] based file formats, such as `.png`, `.mng`, and `.gz`.  
 
-This is a fork of the [AdvanceCOMP][] recompression utilities that has been modified by adding the `adviphone` recompression tool that can recompress Apples iPhone optimized [PNG][] proprietary format.
+This is a fork of the [AdvanceCOMP][] recompression utilities that has been modified by adding the `advpngidat` recompression tool that can recompress Apples iPhone optimized [PNG][] proprietary format.
 
 The files in the `src/` directory are the unpacked contents of the [`advancecomp-1.15.tar.gz`](http://sourceforge.net/projects/advancemame/files/advancecomp/1.15/advancecomp-1.15.tar.gz) distribution.
 
@@ -13,21 +13,21 @@ The files in the `src/` directory are the unpacked contents of the [`advancecomp
 
 ### Usage
 
-This fork of the [AdvanceCOMP][] tools does not modify any of the original tools, but adds an additional tool&ndash; `adviphone`.
+This fork of the [AdvanceCOMP][] tools does not modify any of the original tools, but adds an additional tool&ndash; `advpngidat`.
 
-The `adviphone` tool has a couple of options, which you can view via `--help`, but there is really only one option that is used in practice: `-z4`.  This specifies that the original `.png` file should be recompressed using the highest compression / maximum effort setting.  For example:
+The `advpngidat` tool has a couple of options, which you can view via `--help`, but there is really only one option that is used in practice: `-z4`.  This specifies that the original `.png` file should be recompressed using the highest compression / maximum effort setting.  For example:
 
 <pre>
-shell% adviphone -z4 <i>FILE</i>.png
+shell% advpngidat -z4 <i>FILE</i>.png
       308008      283951  92% <i>FILE</i>.png
 </pre>
       
-The original `.png` file is replaced with the recompressed version.  The `.png` file is left unmodified if `adviphone` was unable to make the `.png` smaller.
+The original `.png` file is replaced with the recompressed version.  The `.png` file is left unmodified if `advpngidat` was unable to make the `.png` smaller.
 
 You can also wild-card batch process `.png` files too:
 
 <pre>
-shell% adviphone -z4 Images/*.png
+shell% advpngidat -z4 Images/*.png
          937         908  96% Images/CornerReading@2x.png
       147935      136238  92% Images/Default.png
       523332      479938  91% Images/Default@2x.png
@@ -35,13 +35,13 @@ shell% adviphone -z4 Images/*.png
          148         148 100% Images/DottedLine@2x.png
 </pre>
 
-**Helpful Hint:** The [AdvanceCOMP][] distribution also includes the `advdef` tool.  This tool performs the same recompression optimization on `.gz` files, and it is used exactly the same way as `adviphone`&ndash; <code>advdef -z4 <i>FILE</i>.gz</code>.
+**Helpful Hint:** The [AdvanceCOMP][] distribution also includes the `advdef` tool.  This tool performs the same recompression optimization on `.gz` files, and it is used exactly the same way as `advpngidat`&ndash; <code>advdef -z4 <i>FILE</i>.gz</code>.
 
 ### Design
 
-The `adviphone` tool was created by taking the [`repng.cc`][repng.cc] and copying it to [`reiphone.cc`][reiphone.cc].  The PNG optimization code from [`repng.cc`][repng.cc] was then completely removed, and code that only recompresses a [PNG][]'s `IDAT` chunk was added.
+The `advpngidat` tool was created by taking the [`repng.cc`][repng.cc] and copying it to [`repngidat.cc`][repngidat.cc].  The PNG optimization code from [`repng.cc`][repng.cc] was then completely removed, and code that only recompresses a [PNG][]'s `IDAT` chunk was added.
 
-The `adviphone` tool performs only a single type of optimization: recompression of the `IDAT` chunk in a `.png` file.  The contents of the decompressed `IDAT` chunk are not examined nor modified in anyway, it is simply recompressed using the [7z][] [RFC 1950][] / [zlib][] compression engine. The other [PNG][] chunks in the `.png` file are passed through unmodified.
+The `advpngidat` tool performs only a single type of optimization: recompression of the `IDAT` chunk in a `.png` file.  The contents of the decompressed `IDAT` chunk are not examined nor modified in anyway, it is simply recompressed using the [7z][] [RFC 1950][] / [zlib][] compression engine. The other [PNG][] chunks in the `.png` file are passed through unmodified.
 
 #### RFC 1950 / zlib Streams
 
@@ -56,9 +56,9 @@ The iPhone optimized [PNG][] format requires the `IDAT` chunk to be compressed u
 
 #### Recompressing `IDAT`
 
-The `adviphone` tool works by recompressing the `IDAT` chunk using the [7z][] [RFC 1950][] / [zlib][] compression engine, which can usually achieve an additional 3% to 7% additional compression relative to [zlib][] / `gzip -9` maximum compression setting (it's sort of like `gzip` that goes to `gzip -11`).
+The `advpngidat` tool works by recompressing the `IDAT` chunk using the [7z][] [RFC 1950][] / [zlib][] compression engine, which can usually achieve an additional 3% to 7% additional compression relative to [zlib][] / `gzip -9` maximum compression setting (it's sort of like `gzip` that goes to `gzip -11`).
 
-The iPhone optimized [PNG][] format includes an additional, non-standard [PNG][] chunk type: `CgBI`.  The presence or absence of this chunk type is used to determine whether or not the `IDAT` chunk is a *raw* or *normal* [RFC 1950][] / [zlib][] stream.  The `adviphone` tool works on either iPhone optimized `.png` files, or [PNG] standard conforming `.png` files.  The presence or absence of a `CgBI` chunk is used to determine whether or not the `IDAT` chunk should be read and re-written as a *raw* or *normal* [RFC 1950][] / [zlib][] stream.
+The iPhone optimized [PNG][] format includes an additional, non-standard [PNG][] chunk type: `CgBI`.  The presence or absence of this chunk type is used to determine whether or not the `IDAT` chunk is a *raw* or *normal* [RFC 1950][] / [zlib][] stream.  The `advpngidat` tool works on either iPhone optimized `.png` files, or [PNG] standard conforming `.png` files.  The presence or absence of a `CgBI` chunk is used to determine whether or not the `IDAT` chunk should be read and re-written as a *raw* or *normal* [RFC 1950][] / [zlib][] stream.
 
 ### Recompression Results
 
@@ -66,7 +66,7 @@ Some numbers (obtained with `shell% wc Images/*.png | tail -1`) based on the `.p
 
 <table>
 <tr><td align="left">Default Xcode <code>pngcrush</code></td><td align="left">6554837 bytes (6.25MB)</td></tr>
-<tr><td align="left">After <code>adviphone</code></td><td align="left">6110164 bytes (5.82MB)</td></tr>
+<tr><td align="left">After <code>advpngidat</code></td><td align="left">6110164 bytes (5.82MB)</td></tr>
 </table>
 
 This represents a savings of 444673 bytes, or 434KB.
@@ -75,10 +75,10 @@ There is an additional option that you can use with `pngcrush`: `-brute`.  This 
 
 <table>
 <tr><td align="left">Xcode <code>pngcrush</code> w/ <code>-brute</code></td><td align="left">5626755 bytes (5.36MB)</td></tr>
-<tr><td align="left">After <code>adviphone<code></td><td align="left">5248702 bytes (5.00MB)</td></tr>
+<tr><td align="left">After <code>advpngidat<code></td><td align="left">5248702 bytes (5.00MB)</td></tr>
 </table>
 
-Using a combination of both `-brute` and `adviphone` saves 1306135 bytes, or 1.24MB, relative to the default Xcode [`COMPRESS_PNG_FILES`][COMPRESS_PNG_FILES] optimization.
+Using a combination of both `-brute` and `advpngidat` saves 1306135 bytes, or 1.24MB, relative to the default Xcode [`COMPRESS_PNG_FILES`][COMPRESS_PNG_FILES] optimization.
 
 ### Background / Theory
 
@@ -96,7 +96,7 @@ As a general rule, decompression speed of [LZ77][] based compressors is complete
 [LZMA]: http://en.wikipedia.org/wiki/Lzma
 [7-Zip]: http://en.wikipedia.org/wiki/7-Zip
 [repng.cc]: https://github.com/scribd/advancecomp/blob/master/src/repng.cc
-[reiphone.cc]: https://github.com/scribd/advancecomp/blob/master/src/reiphone.cc
+[repngidat.cc]: https://github.com/scribd/advancecomp/blob/master/src/repngidat.cc
 [RFC 1950]: http://www.ietf.org/rfc/rfc1950.txt
 [PNG]: http://www.w3.org/TR/PNG/
 [7z]: http://en.wikipedia.org/wiki/7z
