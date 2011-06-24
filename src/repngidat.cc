@@ -40,8 +40,7 @@ bool opt_crc;
 adv_error recompress_png_idat(adv_fz* f_in, adv_fz *f_out) {
   unsigned char *data = NULL;
   unsigned int type = 0, size = 0, noZlibHeader = 0;
-  unsigned int pixel = 1, width = 1, width_align = 1, height = 1, depth = 1;
-  //adv_bool has_palette;
+  unsigned int pixel = 1, width = 1, width_align = 1, height = 1, depth = 1, depth_bytes = 1, color_type = 0;
 
   unsigned char *decompressed_IDAT = NULL;
 
@@ -49,10 +48,9 @@ adv_error recompress_png_idat(adv_fz* f_in, adv_fz *f_out) {
   if (adv_png_write_signature(f_out, NULL) != 0) { goto err; }
 
   do {
-    //fprintf(stderr, "DEBUG: About to read a chunk..\n");
     if (adv_png_read_chunk(f_in, &data, &size, &type) != 0) { goto err; }
 
-    //fprintf(stderr, "DEBUG: Read in chunk '%c%c%c%c', size %u\n", (((type & (0xff<<24)) >> 24) & 0xff), (((type & (0xff<<16)) >> 16) & 0xff), (((type & (0xff<<8)) >> 8) & 0xff), (((type & (0xff<<0)) >> 0) & 0xff), size);
+  reloopWithChunk:
     switch (type) {
       case ADV_PNG_CN_IDAT:
         {
@@ -80,42 +78,43 @@ adv_error recompress_png_idat(adv_fz* f_in, adv_fz *f_out) {
 
           inflateEnd(&z);
 
-          if (r != Z_STREAM_END) { error_set("Invalid compressed data"); goto err_data; }
+          if (r != Z_STREAM_END) { error_set("Unable to decompress data"); goto err_data; }
 
-          //unsigned char *compressed_IDAT = NULL;
-          //unsigned int compressed_IDAT_size = z.total_out;
+          unsigned int compressed_IDAT_size = oversize_zlib(z.total_out) + 1024u; // For extremely small file corner cases.
+          unsigned char *compressed_IDAT = NULL;
 
-          unsigned z_size;
-          data_ptr z_ptr;
-
-          z_size = oversize_zlib(z.total_out);
-          z_ptr = data_alloc(z_size);
+          if((compressed_IDAT = (unsigned char *)malloc(compressed_IDAT_size)) == NULL) { error_set("Unable to allocate memory"); goto err_data; }
           
-          if(!compress_zlib(shrink_extreme, z_ptr, z_size, decompressed_IDAT, decompressed_IDAT_size, noZlibHeader ? 0 : 1)) { error_set("Recompression failed"); goto err_data; }
-          if (adv_png_write_chunk(f_out, ADV_PNG_CN_IDAT, z_ptr, z_size, NULL) != 0) { goto err_data; }
-          if (adv_png_read_iend(f_in, data, size, type)!=0) { goto err; } else { goto writeChunk; }
+          if(!compress_zlib(shrink_extreme, compressed_IDAT, compressed_IDAT_size, decompressed_IDAT, decompressed_IDAT_size, noZlibHeader ? 0 : 1)) { error_set("Recompression failed"); goto err_data; }
+          if (adv_png_write_chunk(f_out, ADV_PNG_CN_IDAT, compressed_IDAT, compressed_IDAT_size, NULL) != 0) { goto err_data; }
+          free(compressed_IDAT); compressed_IDAT = NULL;
+          goto reloopWithChunk;
         }
         break;
 
 
       case ADV_PNG_CN_CgBI:
-        //fprintf(stderr, "DEBUG: Saw CgBI chunk..\n");
         noZlibHeader = 1;
         goto writeChunk;
         break;
 
       case ADV_PNG_CN_IHDR:
-        width  = be_uint32_read(data + 0);
-        height = be_uint32_read(data + 4);
-        depth  = data[8];
+        width       = be_uint32_read(data + 0);
+        height      = be_uint32_read(data + 4);
+        depth       = data[8];
+        depth_bytes = (depth < 8) ? 1 : depth / 8;
+        color_type  = data[9];
 
-             if (data[9] == 3 && depth == 8) { pixel = 1; width_align = width;            }
-        else if (data[9] == 3 && depth == 4) { pixel = 1; width_align = (width + 1) & ~1; }
-        else if (data[9] == 3 && depth == 2) { pixel = 1; width_align = (width + 3) & ~3; }
-        else if (data[9] == 3 && depth == 1) { pixel = 1; width_align = (width + 7) & ~7; }
-        else if (data[9] == 2 && depth == 8) { pixel = 3; width_align = width;            }
-        else if (data[9] == 6 && depth == 8) { pixel = 4; width_align = width;            }
-        else { error_unsupported_set("Unsupported bit depth/color type, %d/%d", (unsigned)data[8], (unsigned)data[9]); goto err_data; }
+        switch(color_type) {
+          case 0: /* Grey  */ pixel = 1 * depth_bytes; if(!((depth == 1) || (depth == 2) || (depth == 4) || (depth == 8) || (depth == 16))) { error_unsupported_set("Unsupported bit depth/color type, %d/%d", depth, color_type); goto err_data; } break;
+          case 2: /* RGB   */ pixel = 3 * depth_bytes; if(!(                                                (depth == 8) || (depth == 16))) { error_unsupported_set("Unsupported bit depth/color type, %d/%d", depth, color_type); goto err_data; } break;
+          case 3: /* Index */ pixel = 1 * depth_bytes; if(!((depth == 1) || (depth == 2) || (depth == 4) || (depth == 8)                 )) { error_unsupported_set("Unsupported bit depth/color type, %d/%d", depth, color_type); goto err_data; } break;
+          case 4: /* GreyA */ pixel = 2 * depth_bytes; if(!(                                                (depth == 8) || (depth == 16))) { error_unsupported_set("Unsupported bit depth/color type, %d/%d", depth, color_type); goto err_data; } break;
+          case 6: /* RGBA  */ pixel = 4 * depth_bytes; if(!(                                                (depth == 8) || (depth == 16))) { error_unsupported_set("Unsupported bit depth/color type, %d/%d", depth, color_type); goto err_data; } break;
+          default: error_unsupported_set("Unsupported color type, %d", color_type); goto err_data; break;
+        }
+
+        width_align = (width + 7) & ~7; // worst case.
 
         goto writeChunk;
         break;
@@ -133,7 +132,7 @@ adv_error recompress_png_idat(adv_fz* f_in, adv_fz *f_out) {
     }
 
     free(data); data = NULL;
-  } while (1);
+  } while (type != ADV_PNG_CN_IEND);
 
   error_set("Invalid PNG file");
   return -1;
